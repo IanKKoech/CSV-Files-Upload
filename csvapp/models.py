@@ -13,7 +13,7 @@ class FuneralPolicy(models.Model):
     time_stamp = models.DateField()
     report_period_start = models.DateTimeField()
     report_period_end = models.DateTimeField()
-    administrator = models.CharField(max_length=100)  # Corrected typo here
+    administrator = models.CharField(max_length=100)  
     insurer_name = models.CharField(max_length=200)
     client_identifier = models.IntegerField()
     division_identifier = models.IntegerField()
@@ -142,3 +142,102 @@ class FuneralPolicy(models.Model):
     def __str__(self):
         return f"{self.policy_number} - {self.insurer_name} - {self.policy_start_date}"
 
+class IndluLoanData(models.Model):
+
+    gender_choices = [
+        ('Male', 'male'),
+        ('Female', 'female')
+    ]
+
+    report_data = models.DateField()
+    client_ref = models.BigIntegerField()
+    loan_ref_Id = models.IntegerField()
+    status = models.CharField(max_length=250)
+    close_date = models.DateField()
+    NT = models.CharField(max_length=250)
+    payment_method = models.CharField(max_length=250)
+    merchant = models.CharField(max_length=250)
+    province = models.CharField(max_length=250)
+    disbursment_date = models.DateField()
+    disbursement_month = models.IntegerField()
+    application_score = models.IntegerField()
+    risk_band = models.IntegerField()
+    debt_book = models.CharField(max_length=250)
+    agency = models.CharField(max_length=250)
+    special_circumstance = models.CharField(max_length=250, null=True, blank=True)
+    sector = models.CharField(max_length=250)
+    job_description = models.CharField(max_length=250)
+    last_payment_date = models.DateField()
+    last_payment_month = models.IntegerField()
+    gender = models.CharField(max_length=250, choices = gender_choices)
+    employer = models.CharField(max_length=250)
+    loan_amount = models.FloatField()
+    int_rate = models.FloatField()
+    loan_term = models.IntegerField()
+    remaining_term = models.IntegerField()
+    CD_move = models.IntegerField()
+    CD_current_month = models.IntegerField(null=True, blank=True)
+    CD_Oct_2023 = models.IntegerField(null=True, blank=True)
+    CD_Sep_2023 = models.IntegerField(null=True, blank=True)
+    CD_Aug_2023 = models.IntegerField(null=True, blank=True)
+    CD_Jul_2023 = models.IntegerField(null=True, blank=True)
+    CD_Jun_2023 = models.IntegerField(null=True, blank=True)
+    CD_May_2023 = models.IntegerField(null=True, blank=True)
+    CD_Apr_2023 = models.IntegerField(null=True, blank=True)
+    CD_Mar_2023 = models.IntegerField(null=True, blank=True)
+    CD_Feb_2023 = models.IntegerField(null=True, blank=True)
+    CD_Jan_2023 = models.IntegerField(null=True, blank=True)
+    CD_Dec_2023 = models.IntegerField(null=True, blank=True)
+    CD_Nov_2023 = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.client_ref} - {self.loan_ref_Id} - {self.status}"
+
+class SmartAdvanceCredit(models.Model):
+
+    gender_choices = [
+        ('Male', 'male'),
+        ('female', 'Female')
+    ]
+
+    refId = models.IntegerField(unique=True)
+    batch_number = models.IntegerField()
+    create_date = models.DateField()
+    transmission_date = models.DateField()
+    file_name = models.CharField(max_length=250)
+    loan_ref = models.IntegerField()
+    policy_status = models.IntegerField()
+    policy_commencement_date = models.DateTimeField()
+    policy_expiry_date = models.DateField()
+    term_of_policy = models.IntegerField()
+    policy_status_date = models.DateTimeField()
+    new_policy_indicator = models.CharField(max_length=250)
+    sales_channel = models.CharField(max_length=250)
+    death_premium = models.FloatField()
+    ptd_premium = models.IntegerField()
+    retrenchment_premium = models.IntegerField()
+    death_original_sum_assured = models.FloatField()
+    death_current_sum_assured = models.FloatField()
+    PTD_current_sum_assured = models.FloatField()
+    retrenchment_current_sum_assured = models.FloatField()
+    total_policy_premium_collected = models.FloatField()
+    total_policy_premium_payable = models.FloatField()
+    original_loan_balance = models.FloatField()
+    current_outstanding_balance = models.FloatField()
+    installment_amount = models.FloatField()
+    principal_surname = models.CharField(max_length=250)
+    principal_first_name = models.CharField(max_length=250)
+    principal_initials = models.CharField(max_length=50)
+    principal_ID = models.BigIntegerField(unique=True)
+    principal_gender = models.CharField(max_length=250, choices=gender_choices)
+    principal_date_of_birth = models.DateField()
+    principal_member_physical_address = models.CharField(max_length=250)
+    principal_member_email_address = models.EmailField()
+    principal_telephone_number = models.CharField(max_length=250)
+    postal_code = models.CharField(max_length=250)
+    PTD_original_sum_assured = models.IntegerField()
+    retrenchment_original_sum_assured = models.IntegerField()
+    income_group = models.CharField(max_length=250)
+    admin_binder_fees = models.IntegerField()
+    commission = models.IntegerField()
+    old_provider = models.CharField(max_length=250, null=True, blank=True)
