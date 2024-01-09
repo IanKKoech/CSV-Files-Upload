@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Add Policy</title>
+    </head>
+
+    <body>
+        <h1>Add Funeral Policy</h1>
+        <form method="post" action="{% url 'add_funeral_policy' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit</button>
+        </form>
+    </body>
+
+</html>
