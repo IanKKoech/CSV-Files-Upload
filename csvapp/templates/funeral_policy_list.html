@@ -1,17 +1,42 @@
 <!DOCTYPE html>
-
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Policy List</title>
-    </head>
 
-    <body>
-        <h1>Policy List</h1>
-        <ul>
-            {% for policy in policies %}
-                <li>{{ policy.policy_number }} - {{ policy.insurer_name }} - {{ policy.policy_start_date }}</li>
-            {% endfor %}
-        </ul>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <title>Policy List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            margin: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Policy List</h1>
+    <ul>
+        {% for policy in policies %}
+        <li>{{ policy.policy_number }} - {{ policy.insurer_name }} - {{policy.administrator_identifier}}</li>
+        {% endfor %}
+    </ul>
+</body>
+
 </html>

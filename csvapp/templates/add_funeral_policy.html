@@ -1,19 +1,58 @@
 <!DOCTYPE html>
+<html lang="en">
 
-<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Policy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
 
-    <head>
-        <meta charset="UTF-8">
-        <title>Add Policy</title>
-    </head>
+        h1 {
+            color: #333;
+        }
 
-    <body>
-        <h1>Add Funeral Policy</h1>
-        <form method="post" action="{% url 'add_funeral_policy' %}">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Submit</button>
-        </form>
-    </body>
+        form {
+            max-width: 600px;
+            margin: 20px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Add Policy</h1>
+    <form method="post" enctype="multipart/form-data" action="{% url 'add_funeral_policy' %}">
+        {% csrf_token %}
+        {{ form.csv_file.label_tag }}
+        {{ form.csv_file }}
+        <button type="submit">Submit</button>
+    </form>
+</body>
 
 </html>
