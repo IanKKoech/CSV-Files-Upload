@@ -202,7 +202,7 @@ class SmartAdvanceCredit(models.Model):
         ('female', 'Female')
     ]
 
-    refId = models.CharField(max_length=250, unique=True, blank=True, null=True)
+    refId = models.CharField(max_length=250, blank=True, null=True)
     batch_number = models.CharField(max_length=250, blank=True, null=True)
     create_date = models.CharField(max_length=250,blank=True, null=True)
     transmission_date = models.CharField(max_length=250,blank=True, null=True)
@@ -230,7 +230,7 @@ class SmartAdvanceCredit(models.Model):
     principal_surname = models.CharField(max_length=250, blank=True, null=True)
     principal_first_name = models.CharField(max_length=250, blank=True, null=True)
     principal_initials = models.CharField(max_length=50, blank=True, null=True)
-    principal_ID = models.CharField(max_length=250, unique=True, blank=True, null=True)
+    principal_ID = models.CharField(max_length=250, blank=True, null=True)
     principal_gender = models.CharField(max_length=250, choices=gender_choices, blank=True, null=True)
     principal_date_of_birth = models.CharField(max_length=250,blank=True, null=True)
     principal_member_physical_address = models.CharField(max_length=250, blank=True, null=True)

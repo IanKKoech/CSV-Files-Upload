@@ -3,8 +3,8 @@ import io
 import openpyxl
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from .models import FuneralPolicy, IndluLoanData
-from .forms import CSVFuneralPolicyUpload, CSVIndluLoanDataUpload
+from .models import FuneralPolicy, IndluLoanData, SmartAdvanceCredit
+from .forms import CSVFuneralPolicyUpload, CSVIndluLoanDataUpload, CSVSmartAdvanceCredit
 
 def funeral_policy_list(request):
     policies = FuneralPolicy.objects.all()
@@ -42,6 +42,24 @@ def add_indlu_loan_data(request):
     else:
         form = CSVIndluLoanDataUpload()
         return render(request, 'add_indlu_loan_data.html', {'form': form})
+    
+def smart_credit_data_list(request):
+    smart_credit_list = SmartAdvanceCredit.objects.all()
+    return render(request, 'smart_credit_data_list.html', {'smart_credit_list': smart_credit_list})
+
+def add_smart_credit_data_list(request):
+    if request.method == 'POST':
+        form = CSVSmartAdvanceCredit(request.POST, request.FILES)
+        if form.is_valid():
+            handle_smart_advance_credit_upload(request.FILES['csv_file'])
+            print('File upload successful')
+            return redirect('smart_credit_list')
+        else:
+            print('Form uploaded is invalid: ', form.errors)
+            return HttpResponse('Form is invalid, inspect for errors')
+    else:
+        form = CSVSmartAdvanceCredit()
+        return render(request, 'add_smart_advance_credit.html',{'form':form})
 
 def handle_indlu_data_upload(file):
     print(type[file])
@@ -138,7 +156,7 @@ def handle_indlu_data_upload(file):
         try:
             loan_data.save()
         except Exception as e:
-            print(f"Error saving funeral policy instance :{e}")  
+            print(f"Error saving IndluLoan data instance :{e}")  
 
 
 def handle_uploaded_file(file):
@@ -383,3 +401,100 @@ def handle_uploaded_file(file):
             funeral_policy.save()
         except Exception as e:
             print(f"Error saving funeral policy instance :{e}")
+
+def handle_smart_advance_credit_upload(file):
+    print(type[file])
+    wb = openpyxl.load_workbook(file)
+    worksheet = wb['Guardrisk Rsa Batches']
+
+    for row in worksheet.iter_rows(values_only=True):
+        refId = row[0]
+        batch_number = row[1]
+        create_date = row[2]
+        transmission_date = row[3]
+        file_name = row[4]
+        loan_ref = row[5]
+        policy_status = row[6]
+        policy_commencement_date = row[7]
+        policy_expiry_date = row[8]
+        term_of_policy = row[9]
+        policy_status_date = row[10]
+        new_policy_indicator = row[11]
+        sales_channel = row[12]
+        death_premium = row[13]
+        ptd_premium = row[14]
+        retrenchment_premium = row[15]
+        death_original_sum_assured = row[16]
+        death_current_sum_assured = row[17]
+        PTD_current_sum_assured = row[18]
+        retrenchment_current_sum_assured = row[19]
+        total_policy_premium_collected = row[20]
+        total_policy_premium_payable = row[21]
+        original_loan_balance = row[22]
+        current_outstanding_balance = row[23]
+        installment_amount = row[24]
+        principal_surname = row[25]
+        principal_first_name = row[26]
+        principal_initials = row[27]
+        principal_ID = row[28]
+        principal_gender = row[29]
+        principal_date_of_birth = row[30]
+        principal_member_physical_address = row[31]
+        principal_member_email_address = row[32]
+        principal_telephone_number = row[33]
+        postal_code = row[34]
+        PTD_original_sum_assured = row[35]
+        retrenchment_original_sum_assured = row[36]
+        income_group = row[37]
+        admin_binder_fees = row[38]
+        commission = row[39]
+        old_provider = row[40]
+
+        smart_credit_data_instance = SmartAdvanceCredit(
+            refId = refId,
+            old_provider = old_provider,
+            batch_number = batch_number,
+            create_date = create_date,
+            transmission_date = transmission_date,
+            file_name = file_name,
+            loan_ref = loan_ref,
+            policy_status = policy_status,
+            policy_commencement_date = policy_commencement_date,
+            policy_expiry_date = policy_expiry_date,
+            term_of_policy = term_of_policy,
+            policy_status_date = policy_status_date,
+            new_policy_indicator = new_policy_indicator,
+            sales_channel = sales_channel,
+            death_premium = death_premium,
+            ptd_premium = ptd_premium,
+            retrenchment_premium = retrenchment_premium,
+            death_original_sum_assured = death_original_sum_assured,
+            death_current_sum_assured = death_current_sum_assured,
+            PTD_current_sum_assured = PTD_current_sum_assured,
+            retrenchment_current_sum_assured = retrenchment_current_sum_assured,
+            total_policy_premium_collected = total_policy_premium_collected,
+            total_policy_premium_payable = total_policy_premium_payable,
+            original_loan_balance = original_loan_balance,
+            current_outstanding_balance = current_outstanding_balance,
+            installment_amount = installment_amount,
+            principal_surname = principal_surname,
+            principal_first_name = principal_first_name,
+            principal_initials = principal_initials,
+            principal_ID = principal_ID,
+            principal_gender = principal_gender,
+            principal_date_of_birth = principal_date_of_birth,
+            principal_member_physical_address = principal_member_physical_address,
+            principal_member_email_address = principal_member_email_address,
+            principal_telephone_number = principal_telephone_number,
+            postal_code = postal_code,
+            PTD_original_sum_assured = PTD_original_sum_assured,
+            retrenchment_original_sum_assured = retrenchment_original_sum_assured,
+            income_group = income_group,
+            admin_binder_fees = admin_binder_fees,
+            commission = commission
+        )
+
+        try:
+            smart_credit_data_instance.save()
+        except Exception as e:
+            print(f"Error saving Smart credit policy instance : {e}")
