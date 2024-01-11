@@ -34,7 +34,7 @@
     <h1>Policy List</h1>
     <ul>
         {% for policy in policies %}
-        <li>{{ policy.policy_number }} - {{ policy.insurer_name }} - {{policy.administrator_identifier}}</li>
+        <li>{{ policy.policy_number }} - {{ policy.insurer_name }} - {{policy.sub_scheme_name}} - {{policy.product_name}}</li>
         {% endfor %}
     </ul>
 </body>

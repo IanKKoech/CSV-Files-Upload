@@ -1,11 +1,12 @@
 import csv
 import io
 import openpyxl
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from .models import FuneralPolicy
-from .forms import CSVFuneralPolicyUpload
+from .models import FuneralPolicy, IndluLoanData
+from .forms import CSVFuneralPolicyUpload, CSVIndluLoanDataUpload
 
-def policy_list(request):
+def funeral_policy_list(request):
     policies = FuneralPolicy.objects.all()
     return render(request, 'funeral_policy_list.html', {'policies': policies})
 
@@ -21,6 +22,124 @@ def add_funeral_policy(request):
     else:
         form = CSVFuneralPolicyUpload()
     return render(request, 'add_funeral_policy.html', {'form': form})
+
+
+
+def indlu_data_list(request):
+    loan_data_list = IndluLoanData.objects.all()
+    return render(request, 'indlu_data_list.html', {'loan_data_list': loan_data_list})
+
+def add_indlu_loan_data(request):
+    if request.method == 'POST':
+        form = CSVIndluLoanDataUpload(request.POST, request.FILES)
+        if form.is_valid():
+            handle_indlu_data_upload(request.FILES['csv_file'])
+            print('File upload successful')
+            return redirect('indlu_list')
+        else:
+            print("Form uploaded is invalid: ", form.errors)
+            return HttpResponse("Form is invalid. Please check the errors.")
+    else:
+        form = CSVIndluLoanDataUpload()
+        return render(request, 'add_indlu_loan_data.html', {'form': form})
+
+def handle_indlu_data_upload(file):
+    print(type[file])
+    wb = openpyxl.load_workbook(file)
+    worksheet = wb['2023_11_30']
+
+    for row in worksheet.iter_rows(values_only=True):
+        report_data = row[0]
+        client_ref = row[1]
+        loan_ref_Id = row[2]
+        status = row[3]
+        close_date = row[4]
+        NT = row[5]
+        payment_method = row[6]
+        merchant = row[7]
+        province = row[8]
+        disbursment_date = row[9]
+        disbursment_month =  row[10]
+        application_score = row[11]
+        risk_band = row[12]
+        debt_book = row[13]
+        agency = row[14]
+        special_circumstance = row[15]
+        sector = row[16]
+        job_description = row[17]
+        last_payment_date = row[18]
+        last_payment_month = row[19]
+        gender = row[20]
+        employer = row[21]
+        loan_amount = row[22]
+        int_rate = row[23]
+        loan_term = row[24]
+        remaining_term = row[25]
+        CD_move = row[26]
+        CD_current_month = row[27]
+        CD_Oct_2023 = row[28]
+        CD_Sep_2023 = row[29]
+        CD_Aug_2023 = row[30]
+        CD_Jul_2023 = row[31]
+        CD_Jun_2023 = row[32]
+        CD_May_2023 = row[33]
+        CD_Apr_2023 = row[34]
+        CD_Mar_2023 = row[35]
+        CD_Feb_2023 = row[36]
+        CD_Jan_2023 = row[37]
+        CD_Dec_2023 = row[38]
+        CD_Nov_2023 = row[39]
+        account_balance_active_charge_off = row[40]
+
+        loan_data = IndluLoanData(
+            report_data = report_data,
+            client_ref = client_ref,
+            loan_ref_Id = loan_ref_Id,
+            status = status,
+            close_date = close_date,
+            NT = NT,
+            payment_method = payment_method,
+            merchant = merchant,
+            province = province,
+            disbursment_date = disbursment_date,
+            disbursment_month = disbursment_month,
+            application_score = application_score,
+            risk_band = risk_band,
+            debt_book = debt_book,
+            agency = agency,
+            special_circumstance = special_circumstance,
+            sector = sector,
+            job_description = job_description,
+            last_payment_date = last_payment_date,
+            last_payment_month = last_payment_month,
+            gender = gender,
+            employer = employer,
+            loan_amount = loan_amount,
+            int_rate = int_rate,
+            loan_term = loan_term,
+            remaining_term = remaining_term,
+            CD_move = CD_move,
+            CD_current_month = CD_current_month,
+            CD_Oct_2023 = CD_Oct_2023,
+            CD_Sep_2023 = CD_Sep_2023,
+            CD_Aug_2023 = CD_Aug_2023,
+            CD_Jul_2023 = CD_Jul_2023,
+            CD_Jun_2023 = CD_Jun_2023,
+            CD_May_2023 = CD_May_2023,
+            CD_Apr_2023 = CD_Apr_2023,
+            CD_Mar_2023 = CD_Mar_2023,
+            CD_Feb_2023 = CD_Feb_2023,
+            CD_Jan_2023 = CD_Jan_2023,
+            CD_Dec_2023 = CD_Dec_2023,
+            CD_Nov_2023 = CD_Nov_2023,
+            account_balance_active_charge_off = account_balance_active_charge_off
+        )
+
+        try:
+            loan_data.save()
+        except Exception as e:
+            print(f"Error saving funeral policy instance :{e}")  
+
 
 def handle_uploaded_file(file):
     print(type[file])
@@ -264,48 +383,3 @@ def handle_uploaded_file(file):
             funeral_policy.save()
         except Exception as e:
             print(f"Error saving funeral policy instance :{e}")
-
-    # doc = file.read().decode("UTF-8")
-    # io_string = io.StringIO(doc)
-    # next(io_string)
-    # result = []
-    # reader = csv.reader(file.read().decode('utf-8').splitlines()) 
-    # data = [row for row in reader]
-    # print(data)
-    # file_content = io.TextIOWrapper(file, encoding='ISO-8859-1').read().replace('\x00', '')
-    # lines = file_content.splitlines()
-
-    # if not lines:
-    #     print('The CSV file is empty.')
-    #     return
-
-    # header = next(csv.reader([lines[0]]))
-
-    # for index, row in enumerate(csv.reader(lines[1:]), start=2):  # Start index from 2 to match line numbers
-    #     cleaned_row = [field.replace('\x00', '') if isinstance(field, str) else field for field in row]
-    #     data = dict(zip(header, cleaned_row))
-
-    #     valid_data = {}
-    #     problematic_data = {}
-    #     for key, value in data.items():
-    #         try:
-    #             key = key.encode('latin-1').decode('utf-8', 'replace')
-    #             value = value.encode('latin-1').decode('utf-8', 'replace')
-    #             valid_data[key] = value
-    #         except UnicodeDecodeError:
-    #             problematic_data[key] = value
-
-    #     if problematic_data:
-    #         print(f"Error decoding data at line {index}: {problematic_data}")
-    #         continue  # Skip the current line
-
-    #     try:
-    #         print("Decoded data")
-    #         print(valid_data)
-    #         # funeral_policy = FuneralPolicy(**valid_data)
-    #         # funeral_policy.save()
-    #     except TypeError as e:
-    #         print(f"Error creating FuneralPolicy instance at line {index}: {e}")
-    #         print(f"Problematic data: {valid_data}")
-
-    # file.close()
