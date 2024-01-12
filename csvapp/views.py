@@ -8,7 +8,8 @@ from django_nextjs.render import render_nextjs_page_sync
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import FuneralPolicySerializer
+from .serializers import FuneralPolicySerializer, IndluLoanDataSerializer, SmartAdvanceCreditSerializer
+from rest_framework import status
 
 from .models import FuneralPolicy, IndluLoanData, SmartAdvanceCredit
 from .forms import CSVFuneralPolicyUpload, CSVIndluLoanDataUpload, CSVSmartAdvanceCredit
@@ -17,6 +18,27 @@ class FuneralPolicyList(APIView):
     def get(self, request, format=None):
         funeral_policies = FuneralPolicy.objects.all()
         serializer = FuneralPolicySerializer(funeral_policies, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = FuneralPolicySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class IndluLoanDataList(APIView):
+    def get(self, request, format=None):
+        indlu_data_list = IndluLoanData.objects.all()
+        serializer = IndluLoanDataSerializer(indlu_data_list, many=True)
+        return Response(serializer.data)
+
+class SmartAdvanceCreditList(APIView):
+    def get(self, request, format=None):
+        smart_credit_data_list = SmartAdvanceCredit.objects.all()
+        serializer = SmartAdvanceCreditSerializer(smart_credit_data_list, many=True)
         return Response(serializer.data)
     
 
@@ -415,6 +437,7 @@ def handle_uploaded_file(file):
             funeral_policy.save()
         except Exception as e:
             print(f"Error saving funeral policy instance :{e}")
+
 
 def handle_smart_advance_credit_upload(file):
     print(type[file])
