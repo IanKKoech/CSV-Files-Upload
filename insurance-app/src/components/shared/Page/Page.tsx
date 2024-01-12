@@ -20,9 +20,9 @@ export const Page: FC<Props> = ({
   canonicalURL = '',
 }) => {
   return (
-    <>
+    <div className="bg-slate-100">
       <Head>
-        <title>{`Back Office | ${title}`}</title>
+        <title>{`Insurance App | ${title}`}</title>
         <meta name="description" content={description} />
         <meta name="keywords" content="" />
         <meta name="author" content="" />
@@ -42,7 +42,7 @@ export const Page: FC<Props> = ({
         <meta name="twitter:creator" content="" />
         {canonicalURL && <link rel="canonical" href={canonicalURL} />}
       </Head>
-      <div className="flex items-center h-full self-center">
+      <div className="flex items-center h-20 self-center bg-slate-100 ml-6">
         <a href="/">
           <svg
             className="w-[8.4rem] text-gray-400 relative -left-3 dark:text-white transition duration-200 ease-linear"
@@ -132,29 +132,31 @@ export const Page: FC<Props> = ({
           dev
         </span>
       </div>
-      <BreadCrumbs
-        breadCrumbs={[
-          {
-            name: 'Home',
-            url: '/',
-          },
-          {
-            name: 'Upload policy',
-            url: '/insurance',
-          },
-        ]}
-      />
-      <Container className="h-[calc(100vh-4.3rem)] pt-4 pb-6 overflow-y-auto relative md:px-12">
+      <div className='ml-7'>
+        <BreadCrumbs
+          breadCrumbs={[
+            {
+              name: 'Home',
+              url: '/',
+            },
+            {
+              name: 'Upload policy',
+              url: '/insurance',
+            },
+          ]}
+        />
+      </div>
+      <Container className="h-[calc(100vh-4.3rem)] pt-4 pb-6 overflow-y-auto relative md:px-16">
         <>
           {children}
           <Box className="mt-6">
-            <Text color="muted" fontSize="sm">
+            <Text color="muted" fontSize="md">
               &copy; {new Date().getFullYear()} &bull; Powered by Fin Connect
               &bull; All Rights Reserved.
             </Text>
           </Box>
         </>
       </Container>
-    </>
+    </div>
   );
 };
