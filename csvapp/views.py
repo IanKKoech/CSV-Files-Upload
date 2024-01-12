@@ -1,10 +1,10 @@
 import csv
 import io
 import openpyxl
+import logging
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
-from django_nextjs.render import render_nextjs_page_sync
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -272,16 +272,127 @@ class FuneralPolicyList(APIView):
 
                 funeral_policy.save()
 
-            return Response({'message': 'CSV file uploaded successfully'}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'CSV file uploaded successfully'}, status=201)
 
         except Exception as e:
             return Response({'error': f'Error processing CSV file: {e}'}, status=status.HTTP_400_BAD_REQUEST)    
 
 class IndluLoanDataList(APIView):
+
+    parser_classes = [MultiPartParser]
+
     def get(self, request, format=None):
         indlu_data_list = IndluLoanData.objects.all()
         serializer = IndluLoanDataSerializer(indlu_data_list, many=True)
         return Response(serializer.data)
+
+    def post(self, request, format=None):
+
+        if 'csv_file' not in request.FILES:
+            return Response({'error': 'Please provide a CSV file'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        csv_file = request.FILES['csv_file']
+
+        try:
+            wb = openpyxl.load_workbook(csv_file)
+            worksheet = wb['2023_11_30']
+
+            for row in worksheet.iter_rows(values_only=True):
+                report_data = row[0]
+                client_ref = row[1]
+                loan_ref_Id = row[2]
+                status = row[3]
+                close_date = row[4]
+                NT = row[5]
+                payment_method = row[6]
+                merchant = row[7]
+                province = row[8]
+                disbursment_date = row[9]
+                disbursment_month =  row[10]
+                application_score = row[11]
+                risk_band = row[12]
+                debt_book = row[13]
+                agency = row[14]
+                special_circumstance = row[15]
+                sector = row[16]
+                job_description = row[17]
+                last_payment_date = row[18]
+                last_payment_month = row[19]
+                gender = row[20]
+                employer = row[21]
+                loan_amount = row[22]
+                int_rate = row[23]
+                loan_term = row[24]
+                remaining_term = row[25]
+                CD_move = row[26]
+                CD_current_month = row[27]
+                CD_Oct_2023 = row[28]
+                CD_Sep_2023 = row[29]
+                CD_Aug_2023 = row[30]
+                CD_Jul_2023 = row[31]
+                CD_Jun_2023 = row[32]
+                CD_May_2023 = row[33]
+                CD_Apr_2023 = row[34]
+                CD_Mar_2023 = row[35]
+                CD_Feb_2023 = row[36]
+                CD_Jan_2023 = row[37]
+                CD_Dec_2023 = row[38]
+                CD_Nov_2023 = row[39]
+                account_balance_active_charge_off = row[40]
+
+                indlu_data_instance = IndluLoanData(
+                    
+                    report_data = report_data,
+                    client_ref = client_ref,
+                    loan_ref_Id = loan_ref_Id,
+                    status = status,
+                    close_date = close_date,
+                    NT = NT,
+                    payment_method = payment_method,
+                    merchant = merchant,
+                    province = province,
+                    disbursment_date = disbursment_date,
+                    disbursment_month = disbursment_month,
+                    application_score = application_score,
+                    risk_band = risk_band,
+                    debt_book = debt_book,
+                    agency = agency,
+                    special_circumstance = special_circumstance,
+                    sector = sector,
+                    job_description = job_description,
+                    last_payment_date = last_payment_date,
+                    last_payment_month = last_payment_month,
+                    gender = gender,
+                    employer = employer,
+                    loan_amount = loan_amount,
+                    int_rate = int_rate,
+                    loan_term = loan_term,
+                    remaining_term = remaining_term,
+                    CD_move = CD_move,
+                    CD_current_month = CD_current_month,
+                    CD_Oct_2023 = CD_Oct_2023,
+                    CD_Sep_2023 = CD_Sep_2023,
+                    CD_Aug_2023 = CD_Aug_2023,
+                    CD_Jul_2023 = CD_Jul_2023,
+                    CD_Jun_2023 = CD_Jun_2023,
+                    CD_May_2023 = CD_May_2023,
+                    CD_Apr_2023 = CD_Apr_2023,
+                    CD_Mar_2023 = CD_Mar_2023,
+                    CD_Feb_2023 = CD_Feb_2023,
+                    CD_Jan_2023 = CD_Jan_2023,
+                    CD_Dec_2023 = CD_Dec_2023,
+                    CD_Nov_2023 = CD_Nov_2023,
+                    account_balance_active_charge_off = account_balance_active_charge_off
+                )
+
+                indlu_data_instance.save()
+            
+            return Response({'message': 'CSV file uploaded successfully'}, status=201)               
+
+        except Exception as e:
+            return Response({'error': f'Error processing CSV file: {e}'}, status=HttpResponseBadRequest.status_code)
+   
+           
 
 class SmartAdvanceCreditList(APIView):
     def get(self, request, format=None):
