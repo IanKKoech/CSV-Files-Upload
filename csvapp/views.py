@@ -1,8 +1,11 @@
 import csv
 import io
 import openpyxl
+
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django_nextjs.render import render_nextjs_page_sync
+
 from .models import FuneralPolicy, IndluLoanData, SmartAdvanceCredit
 from .forms import CSVFuneralPolicyUpload, CSVIndluLoanDataUpload, CSVSmartAdvanceCredit
 

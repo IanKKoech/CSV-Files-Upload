@@ -1,0 +1,38 @@
+import {
+  Primary,
+  Controls,
+  ArgsTable,
+  Story,
+  Canvas,
+  Meta,
+  Stories,
+  Wrapper,
+} from '@storybook/blocks';
+import { FaRegSmileWink } from 'react-icons/fa';
+import * as PieStories from './Pie.stories.tsx';
+import { Flex } from 'fin-ui';
+import { PieChart } from './Pie';
+
+<Meta of={PieStories} />
+
+### Overview
+
+Pie charts are used to display the contribution of each value to a total.
+
+### Import
+
+```tsx
+import { PieChart } from 'fin-ui';
+```
+
+### Interact with the component
+
+<Primary />
+
+### Props
+
+<Controls />
+
+### Examples
+
+<Stories includePrimary={true} title="Example charts" />

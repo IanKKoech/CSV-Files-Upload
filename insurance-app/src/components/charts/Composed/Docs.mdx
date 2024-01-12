@@ -1,0 +1,38 @@
+import {
+  Primary,
+  Controls,
+  ArgsTable,
+  Story,
+  Canvas,
+  Meta,
+  Stories,
+  Wrapper,
+} from '@storybook/blocks';
+import { FaRegSmileWink } from 'react-icons/fa';
+import * as ComposedStories from './Composed.stories.tsx';
+import { Flex } from 'fin-ui';
+import { ComposedChart } from './Composed';
+
+<Meta of={ComposedStories} />
+
+### Overview
+
+Composed charts are charts that combine different types of charts into one. For example, a line chart and a bar chart.
+
+### Import
+
+```tsx
+import { ComposedChart } from '@fin-ui';
+```
+
+### Interact with the component
+
+<Primary />
+
+### Props
+
+<Controls />
+
+### Examples
+
+<Stories includePrimary={true} title="Example charts" />

@@ -1,0 +1,71 @@
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  serviceAccountName: dev-jenkins-sa
+  containers:
+  - name: kaniko
+    image: 719725293376.dkr.ecr.eu-central-1.amazonaws.com/awamogmbh/kaniko-development:latest
+    imagePullPolicy: IfNotPresent
+    command:
+    - /busybox/cat
+    tty: true
+    volumeMounts:
+      - name: image-cache
+        mountPath: /image-cache
+  - name: kaniko2
+    image: 719725293376.dkr.ecr.eu-central-1.amazonaws.com/awamogmbh/kaniko-development:latest
+    imagePullPolicy: IfNotPresent
+    command:
+    - /busybox/cat
+    tty: true
+    volumeMounts:
+      - name: image-cache
+        mountPath: /image-cache      
+  #- name: kaniko-warmer
+  #  image: gcr.io/kaniko-project/warmer:latest
+  #  args: ["--cache-dir=/image-cache",
+  #    "--image=node:16-alpine",
+  #     "--image=sonarsource/sonar-scanner-cli",
+  #    "--image=alpine",
+  #    "--image=719725293376.dkr.ecr.eu-central-1.amazonaws.com/awamogmbh/kaniko-development:latest"]
+  #  volumeMounts:
+  #     mountPath: /image-cache
+  - name: git
+    image: bitnami/git:latest
+    command:
+    - cat
+    tty: true 
+  - name: sonarscanner
+    image: sonarsource/sonar-scanner-cli
+    imagePullPolicy: IfNotPresent
+    command:
+    - /bin/bash
+    tty: true
+  - name: alpine
+    image: alpine
+    imagePullPolicy: IfNotPresent
+    command:
+    - /bin/cat
+    tty: true
+  restartPolicy: Never
+  volumes:
+  - name: image-cache
+    persistentVolumeClaim:
+      claimName: dev-kaniko-jenkins-efs-claim
+  tolerations:
+    - key: "workload-type/jenkins"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+  nodeSelector:
+      workload-type/jenkins: "true"
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+          jenkins/jenkins-jenkins-agent: "true"

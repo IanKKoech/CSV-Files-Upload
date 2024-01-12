@@ -1,0 +1,316 @@
+pipeline {
+    agent any
+
+    environment {
+        VERSION = env.GIT_COMMIT.take(7)
+        DOCKERFILE  = "Dockerfile"
+        GITREPO     = ""
+        CONTEXT     = "pwd"
+        REGISTRY    = "719725293376.dkr.ecr.eu-central-1.amazonaws.com"
+        IMAGE       = "awamogmbh/loantracker-frontend-fe-development"
+        TAG         =  "${REGISTRY}/${IMAGE}:loantracker-fe_${VERSION}_${BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Build & Push Dev') {
+                steps {
+                    script {
+                        sh 'touch .env.production'
+                        sh '''echo "NEXT_PUBLIC_API_URL=https://dev-workflow.fin-connect.net" | cat > .env.production'''
+                        sh '''echo "WEBSITE_URL=https://dev-mt-loantracker.fin-connect.net" | cat >> .env.production'''
+                        sh '''echo "NEXTAUTH_URL=https://dev-mt-loantracker.fin-connect.net" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_CONTRACT_URL=https://contractsbackend.getbucks.co.ke" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_CALCULATOR_URL=https://contractsbackend.getbucks.co.ke" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_ENVIRONMENT=dev" | cat >> .env.production'''
+
+                        sh "docker build -t ${TAG}_dev -f ${DOCKERFILE} ."
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            sh "aws ecr get-login-password | docker login --username AWS --password-stdin ${REGISTRY}"
+                            sh "docker push ${TAG}_dev"
+                        }
+                    }
+                }
+        }
+
+
+        stage('Build & Push QA') {
+                steps {
+                    script {
+                        sh 'touch .env.production'
+                        sh '''echo "NEXT_PUBLIC_API_URL=https://workflow-qa.fin-connect.net" | cat > .env.production'''
+                        sh '''echo "WEBSITE_URL=https://qamt-loantracker.fin-connect.net" | cat >> .env.production'''
+                        sh '''echo "NEXTAUTH_URL=https://qamt-loantracker.fin-connect.net" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_CONTRACT_URL=https://contractsbackend.getbucks.co.ke" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_CALCULATOR_URL=https://contractsbackend.getbucks.co.ke" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_ENVIRONMENT=qa" | cat >> .env.production'''
+
+                        sh "docker build -t ${TAG}_qa -f ${DOCKERFILE} ."
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            sh "aws ecr get-login-password | docker login --username AWS --password-stdin ${REGISTRY}"
+                            sh "docker push ${TAG}_qa"
+                        }
+                    }
+                }
+        }
+
+        stage('Build & Push UAT') {
+                steps {
+                    script {
+                        sh 'touch .env.production'
+                        sh '''echo "NEXT_PUBLIC_API_URL=https://dev-workflow.fin-connect.net" | cat > .env.production'''
+                        sh '''echo "WEBSITE_URL=https://uat-mt-loantracker.fin-connect.net" | cat >> .env.production'''
+                        sh '''echo "NEXTAUTH_URL=https://uat-mt-loantracker.fin-connect.net" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_CONTRACT_URL=https://contractsbackend.getbucks.co.ke" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_CALCULATOR_URL=https://contractsbackend.getbucks.co.ke" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_ENVIRONMENT=uat" | cat >> .env.production'''
+
+                        sh "docker build -t ${TAG}_uat -f ${DOCKERFILE} ."
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            sh "aws ecr get-login-password | docker login --username AWS --password-stdin ${REGISTRY}"
+                            sh "docker push ${TAG}_uat"
+                        }
+                    }
+                }
+        }
+
+        stage('Build & Push Prod') {
+                steps {
+                    script {
+                        sh 'touch .env.production'
+                        sh '''echo "NEXT_PUBLIC_API_URL=https://workflow.fin-connect.net" | cat > .env.production'''
+                        sh '''echo "WEBSITE_URL=https://backoffice.fin-connect.net" | cat >> .env.production'''
+                        sh '''echo "NEXTAUTH_URL=https://backoffice.fin-connect.net" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_CONTRACT_URL=https://contractsbackend.getbucks.co.ke" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_CALCULATOR_URL=https://contractsbackend.getbucks.co.ke" | cat >> .env.production'''
+                        sh '''echo "NEXT_PUBLIC_ENVIRONMENT=production" | cat >> .env.production'''
+
+                        sh "docker build -t ${TAG}_uat -f ${DOCKERFILE} ."
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                            sh "aws ecr get-login-password | docker login --username AWS --password-stdin ${REGISTRY}"
+                            sh "docker push ${TAG}_uat"
+                        }
+                    }
+                }
+        }
+
+
+        stage('Deploy To Dev Environemnt') {
+            steps {
+                script {
+                        stage('Checkout SCM') {
+                            cleanWs()
+                            git branch: 'main', changelog: false, 
+                            credentialsId: 'fin-connect-jenkins', 
+                            poll: false, 
+                            url: 'git@bitbucket.org:awamogmbh/fin-app-config.git'
+                        }
+
+                        stage('Updating Image version in Git') {
+                    
+                            sh """yq -i '.spec.template.spec.containers[0].image="${TAG}_dev"' clusters/dev-eks-cluster/deploy/overlays/dev/loan-tracker-fe-tenant/version.yml"""
+                            sh 'echo "dev manifest file............"'
+                            sh 'cat clusters/dev-eks-cluster/deploy/overlays/dev/loan-tracker-fe-tenant/version.yml'
+                            
+                        stage('Commit & Push') {
+                                   withCredentials([usernamePassword(credentialsId: 'bitbucket_credentials', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                                    sh """
+                                        git config --global --add safe.directory "*"
+                                        git config --global user.email "jenkins@fin.africa"
+                                        git config --global user.name "Jenkins-CI"
+                                        git add clusters/dev-eks-cluster/deploy/overlays/dev/loan-tracker-fe-tenant/version.yml
+                                        git commit -m "Updating Loan tracker BE image in ${BUILD_ID}"
+                                        git push https://$user:$pass@bitbucket.org/awamogmbh/fin-app-config.git main
+                                    """    
+                                 }     
+                           }
+                    }
+                }
+            }
+        }
+
+        stage('QA Approval') {
+                agent none
+                    steps {
+                    //     script { 
+                    //     // input id: 'Prod_promotion', message: 'should we promote to prod?', ok: 'proceed', submitter: '"rogers_kagoda, mark_katamba"', submitterParameter: 'submitter'
+                    //     emailext mimeType: "text/html",
+                    //     subject: "JENKINS APPROVAL REQUEST FROM ${currentBuild.fullDisplayName}",
+                    //     // recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                    //     to: "joseph.mukorivo@fin.africa"
+                    //     body: """<a href="${env.BUILD_URL}input">click to approve deployment to qa environment</a>"""
+                    //     input id: 'Prod_promotion', message: 'should we promote to qa?', ok: 'proceed', submitter: '"joseph_mukorivo"', submitterParameter: 'submitter'
+                    // }
+                            script { 
+                                emailext(
+                                    mimeType: "text/html",
+                                    subject: "JENKINS APPROVAL REQUEST FROM ${currentBuild.fullDisplayName}",
+                                    to: "joseph.mukorivo@fin.africa",
+                                    body: """<a href="${env.BUILD_URL}input">click to approve deployment to qa environment</a>"""
+                                )
+                                input(
+                                    id: 'Prod_promotion',
+                                    message: 'should we promote to qa?',
+                                    ok: 'proceed',
+                                    submitter: 'joseph_mukorivo',
+                                    submitterParameter: 'submitter'
+                                )
+                            }
+                }
+        }
+
+        stage('Deploy To Dev and QA environments') {
+            steps {
+                script {
+                        stage('Checkout SCM') {
+                            cleanWs()
+                            git branch: 'main', changelog: false, 
+                            credentialsId: 'fin-connect-jenkins', 
+                            poll: false, 
+                            url: 'git@bitbucket.org:awamogmbh/fin-app-config.git'
+                        }
+
+                        stage('Updating Image version in Git') {
+                            sh """yq -i '.spec.template.spec.containers[0].image="${TAG}_qa"' clusters/dev-eks-cluster/deploy/overlays/qa/loan-tracker-fe-tenant/version.yml"""
+                            sh 'echo "qa manifest file............"'
+                            sh 'cat clusters/dev-eks-cluster/deploy/overlays/qa/loan-tracker-fe-tenant/version.yml'
+                            
+                        stage('Commit & Push') {
+                                   withCredentials([usernamePassword(credentialsId: 'bitbucket_credentials', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                                    sh """
+                                        git config --global --add safe.directory "*"
+                                        git config --global user.email "jenkins@fin.africa"
+                                        git config --global user.name "Jenkins-CI"
+                                        git add clusters/dev-eks-cluster/deploy/overlays/dev/loan-tracker-fe-tenant/version.yml
+                                        git add clusters/dev-eks-cluster/deploy/overlays/qa/loan-tracker-fe-tenant/version.yml
+                                        git commit -m "Updating Loan tracker BE image in ${BUILD_ID}"
+                                        git push https://$user:$pass@bitbucket.org/awamogmbh/fin-app-config.git main
+                                    """    
+                                 }     
+                           }
+                    }
+                }
+            }
+        }
+
+
+
+
+        // stage('UAT Approval') {
+        //         agent none
+        //             steps {
+        //                 script { 
+        //                 // input id: 'Prod_promotion', message: 'should we promote to prod?', ok: 'proceed', submitter: '"rogers_kagoda, mark_katamba"', submitterParameter: 'submitter'
+        //                 emailext mimeType: "text/html",
+        //                 subject: "JENKINS APPROVAL REQUEST FROM ${currentBuild.fullDisplayName}",
+        //                 // recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+        //                 to: "kenneth.mwangi@fin.africa"
+        //                 body: """<a href="${env.BUILD_URL}input">click to approve deployment to uat environment</a>"""
+        //                 input id: 'Prod_promotion', message: 'should we promote to uat?', ok: 'proceed', submitter: '"mark_katamba"', submitterParameter: 'submitter'
+        //             }
+        //         }
+        // }
+
+        stage('Deploy To UAT environment') {
+            steps {
+                script {
+                        stage('Checkout SCM') {
+                            cleanWs()
+                            git branch: 'main', changelog: false, 
+                            credentialsId: 'fin-connect-jenkins', 
+                            poll: false, 
+                            url: 'git@bitbucket.org:awamogmbh/fin-app-config.git'
+                        }
+                        stage('Updating Image version in Git') {
+                            sh """yq -i '.spec.template.spec.containers[0].image="${TAG}_uat"' clusters/dev-eks-cluster/deploy/overlays/uat/loan-tracker-fe-tenant/version.yml"""
+                            sh 'echo "uat manifest file............"'
+                            sh 'cat clusters/dev-eks-cluster/deploy/overlays/uat/loan-tracker-fe-tenant/version.yml'
+                        stage('Commit & Push') {
+                                   withCredentials([usernamePassword(credentialsId: 'bitbucket_credentials', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                                    sh """
+                                        git config --global --add safe.directory "*"
+                                        git config --global user.email "jenkins@fin.africa"
+                                        git config --global user.name "Jenkins-CI"
+                                        git add clusters/dev-eks-cluster/deploy/overlays/uat/loan-tracker-fe-tenant/version.yml
+                                        git commit -m "Updating Loan tracker BE image in ${BUILD_ID}"
+                                        git push https://$user:$pass@bitbucket.org/awamogmbh/fin-app-config.git main
+                                    """    
+                                    }
+                           }
+                     }
+                }
+            }
+        }
+    
+        stage('PROD Approval') {
+                agent none
+                    steps {
+                    //     script { 
+                    //     // input id: 'Prod_promotion', message: 'should we promote to prod?', ok: 'proceed', submitter: '"rogers_kagoda, mark_katamba"', submitterParameter: 'submitter'
+                    //     emailext mimeType: "text/html",
+                    //     subject: "JENKINS APPROVAL REQUEST FROM ${currentBuild.fullDisplayName}",
+                    //     // recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                    //     to: "joseph.mukorivo@fin.africa"
+                    //     body: """<a href="${env.BUILD_URL}input">click to approve deployment to qa environment</a>"""
+                    //     input id: 'Prod_promotion', message: 'should we promote to qa?', ok: 'proceed', submitter: '"joseph_mukorivo"', submitterParameter: 'submitter'
+                    // }
+                            script { 
+                                emailext(
+                                    mimeType: "text/html",
+                                    subject: "JENKINS APPROVAL REQUEST FROM ${currentBuild.fullDisplayName}",
+                                    to: "brian.ndeva@fin.africa",
+                                    body: """<a href="${env.BUILD_URL}input">click to approve deployment to qa environment</a>"""
+                                )
+                                input(
+                                    id: 'Prod_promotion',
+                                    message: 'should we promote to prod?',
+                                    ok: 'proceed',
+                                    submitter: 'brian_ndeva',
+                                    submitterParameter: 'submitter'
+                                )
+                            }
+                }
+        }
+
+        stage('Deploy To PROD environment') {
+            steps {
+                script {
+                        stage('Checkout SCM') {
+                            cleanWs()
+                            git branch: 'main', changelog: false, 
+                            credentialsId: 'fin-connect-jenkins', 
+                            poll: false, 
+                            url: 'git@bitbucket.org:awamogmbh/fin-app-config.git'
+                        }
+                        stage('Updating Image version in Git') {
+                            sh """yq -i '.spec.template.spec.containers[0].image="${TAG}_uat"' clusters/dev-eks-cluster/deploy/overlays/prod/loan-tracker-fe-tenant/version.yml"""
+                            sh 'echo "uat manifest file............"'
+                            sh 'cat clusters/dev-eks-cluster/deploy/overlays/prod/loan-tracker-fe-tenant/version.yml'
+                        stage('Commit & Push') {
+                                   withCredentials([usernamePassword(credentialsId: 'bitbucket_credentials', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                                    sh """
+                                        git config --global --add safe.directory "*"
+                                        git config --global user.email "jenkins@fin.africa"
+                                        git config --global user.name "Jenkins-CI"
+                                        git add clusters/dev-eks-cluster/deploy/overlays/prod/loan-tracker-fe-tenant/version.yml
+                                        git commit -m "Updating Loan tracker BE image in ${BUILD_ID}"
+                                        git push https://$user:$pass@bitbucket.org/awamogmbh/fin-app-config.git main
+                                    """    
+                                    }
+                           }
+                     }
+                }
+            }
+        }
+    }
+
+
+
+        post {
+            always {
+                    emailext body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
+                    //recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                    to: "brian.ndeva@fin.africa",
+                    subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
+            }
+        }
+}
