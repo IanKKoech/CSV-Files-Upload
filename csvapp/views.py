@@ -6,8 +6,19 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django_nextjs.render import render_nextjs_page_sync
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import FuneralPolicySerializer
+
 from .models import FuneralPolicy, IndluLoanData, SmartAdvanceCredit
 from .forms import CSVFuneralPolicyUpload, CSVIndluLoanDataUpload, CSVSmartAdvanceCredit
+
+class FuneralPolicyList(APIView):
+    def get(self, request, format=None):
+        funeral_policies = FuneralPolicy.objects.all()
+        serializer = FuneralPolicySerializer(funeral_policies, many=True)
+        return Response(serializer.data)
+    
 
 def funeral_policy_list(request):
     policies = FuneralPolicy.objects.all()

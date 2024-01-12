@@ -40,7 +40,8 @@ INSTALLED_APPS = [
 
     # 3rd party apps
     'csvapp',
-    'django_nextjs'
+    'django_nextjs',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -70,6 +71,14 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 WSGI_APPLICATION = 'csvproject.wsgi.application'
 
