@@ -9,6 +9,6 @@ urlpatterns = [
     path('add_smart_credit/', add_smart_credit_data_list, name='add_smart_credit_data_list'),
     path('smart_credit_list/', smart_credit_data_list, name='smart_credit_list'),
     path('api/funeral_policies/', FuneralPolicyList.as_view(), name='funeral_policy_api'),
-    path('api/indlu_loan_data_list', IndluLoanDataList.as_view(), name='indlu_data_api'),
-    path('api/smart_credit_info_list', SmartAdvanceCreditList.as_view(), name='smart_credit_api')
+    path('api/indlu_loan_data_list/', IndluLoanDataList.as_view(), name='indlu_data_api'),
+    path('api/smart_credit_info_list/', SmartAdvanceCreditList.as_view(), name='smart_credit_api')
 ]
