@@ -1,24 +1,28 @@
 import React, { useState } from 'react';
+
 import { Page } from '@/components/shared';
 import { Button, DropDown, Text } from 'fin-ui';
+import nProgress from 'nprogress';
+import { toast } from 'sonner';
 
 export default function Reports() {
-  const [selectedValue, setSelectedValue] = useState('');
+  const [selectedValue, setSelectedValue] = useState(null);
   const [file, setFile] = useState(null);
 
   const handleDropDownChange = (selectedValue) => {
     setSelectedValue(selectedValue.value);
   };
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     if (!file) {
       console.error('No file selected');
+      toast.error('Please upload a file');
       return;
     }
 
@@ -28,18 +32,30 @@ export default function Reports() {
     const apiRoute = getApiRoute(selectedValue);
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/csvapp/api/${apiRoute}/`, {
-        method: 'POST',
-        body: formData,
-      });
+      nProgress.start();
+      const res = await fetch(
+        `http://127.0.0.1:8000/csvapp/api/${apiRoute}/`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
 
-      if (response.ok) {
-        console.log('File uploaded successfully');
-      } else {
-        console.error('Failed to upload file');
-      }
+      const data = await res.json();
+      toast.success('Success', {
+        description: 'File has been uploaded successfully',
+      });
+      setSelectedValue('');
+      setFile(null);
+
+      
     } catch (error) {
       console.error('Error uploading file', error);
+      toast.error('Error', {
+        description: 'File upload failed',
+      });
+    } finally {
+      nProgress.done();
     }
   };
 
@@ -58,7 +74,7 @@ export default function Reports() {
 
   return (
     <Page title="Dashboard" description="">
-      <div className="w-3/12 h-16">
+      <div className="w-3/12 h-16 mt-14">
         <div className="mb-2">
           <Text>Upload required files below</Text>
         </div>
@@ -86,8 +102,13 @@ export default function Reports() {
       </div>
       <br />
 
-      <form className='mt-3' onSubmit={handleSubmit}>
-        <input type="file" name="csv_file" id="file" onChange={handleFileChange} />
+      <form className="mt-3" onSubmit={handleSubmit}>
+        <input
+          type="file"
+          name="csv_file"
+          id="file"
+          onChange={handleFileChange}
+        />
         <br />
         <br />
         <Button
