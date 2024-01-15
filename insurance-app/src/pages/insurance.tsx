@@ -8,13 +8,39 @@ import { toast } from 'sonner';
 export default function Reports() {
   const [selectedValue, setSelectedValue] = useState(null);
   const [file, setFile] = useState(null);
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
   const handleDropDownChange = (selectedValue) => {
     setSelectedValue(selectedValue.value);
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+
+    if(!selectedFile) {
+      console.log('No file selected');
+      toast.error('Error', {
+        description: 'Please select a file'
+      });
+      setIsSubmitDisabled(true);
+      return;
+    }
+
+    const allowedFormats = ['csv', 'xlsx'];
+    const fileExtension = selectedFile.name.split('.').pop().toLowerCase();
+
+    if(!allowedFormats.includes(fileExtension)){
+      console.error('Invalid file format');
+      toast.error('Error', {
+        description: 'Invalid file format, please upload a CSV or XLSX file'
+      });
+      setIsSubmitDisabled(true);
+      return;
+    }
+    
+    setIsSubmitDisabled(false);
+    setFile(selectedFile);
+
   };
 
   const handleSubmit = async (e) => {
@@ -117,6 +143,7 @@ export default function Reports() {
           loadingText="Uploading file"
           size="md"
           variant="outline"
+          disabled={isSubmitDisabled}
         >
           Submit file
         </Button>
