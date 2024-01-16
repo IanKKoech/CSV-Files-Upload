@@ -151,7 +151,7 @@ class IndluLoanData(models.Model):
 
     report_data = models.CharField(max_length=250, null=True, blank=True)
     client_ref = models.CharField(max_length=250, null=True, blank=True)
-    loan_ref_Id = models.CharField(max_length=250, null=True, blank=True)
+    loan_ref_Id = models.CharField(unique=True, max_length=250, null=True, blank=True)
     status = models.CharField(max_length=250, null=True, blank=True)
     close_date = models.CharField(max_length=250, null=True, blank=True)
     NT = models.CharField(max_length=250, null=True, blank=True)
@@ -202,7 +202,7 @@ class SmartAdvanceCredit(models.Model):
         ('female', 'Female')
     ]
 
-    refId = models.CharField(max_length=250, blank=True, null=True)
+    refId = models.CharField(unique=True,max_length=250, blank=True, null=True)
     batch_number = models.CharField(max_length=250, blank=True, null=True)
     create_date = models.CharField(max_length=250,blank=True, null=True)
     transmission_date = models.CharField(max_length=250,blank=True, null=True)
