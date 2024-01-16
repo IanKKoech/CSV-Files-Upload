@@ -18,7 +18,7 @@ class FuneralPolicy(models.Model):
     client_identifier = models.CharField(max_length=250, blank=True, null=True)
     division_identifier = models.CharField(max_length=250, blank=True, null=True)
     sub_scheme_name = models.CharField(max_length=200, blank=True, null=True)
-    policy_number = models.CharField(max_length=200, blank=True, null=True)
+    policy_number = models.CharField(unique=True,max_length=200, blank=True, null=True)
     product_name = models.CharField(max_length=200, blank=True, null=True)
     product_option = models.CharField(max_length=250, blank=True, null=True)
     policy_commencement_date = models.CharField(max_length=250,blank=True, null=True)

@@ -20,7 +20,7 @@ export const Page: FC<Props> = ({
   canonicalURL = '',
 }) => {
   return (
-    <div className="bg-slate-200">
+    <div className="bg-white">
       <Head>
         <title>{`Insurance App | ${title}`}</title>
         <meta name="description" content={description} />

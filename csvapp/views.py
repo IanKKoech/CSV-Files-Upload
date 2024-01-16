@@ -1,7 +1,4 @@
-import csv
-import io
 import openpyxl
-import logging
 
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
@@ -16,7 +13,6 @@ from .serializers import FuneralPolicySerializer, IndluLoanDataSerializer, Smart
 
 from .models import FuneralPolicy, IndluLoanData, SmartAdvanceCredit
 from .forms import CSVFuneralPolicyUpload, CSVIndluLoanDataUpload, CSVSmartAdvanceCredit
-
 
 class FuneralPolicyList(APIView):
 
@@ -34,23 +30,22 @@ class FuneralPolicyList(APIView):
 
         csv_file = request.FILES['csv_file']
 
-        total_records = 0
-        new_records = []
-        updated_records = []
-        failed_records = []
-
         try:
             wb = openpyxl.load_workbook(csv_file)
             worksheet = wb["Funeral Policies"]
 
+            new_records = []
+            updated_records = []
+            failed_records = []
+
             for row in worksheet.iter_rows(values_only=True):
-                total_records += 1
 
                 policy_number = row[10]
 
                 try:
+                    # Updates existing record
+
                     funeral_policy = FuneralPolicy.objects.get(policy_number=policy_number)
-                    # Update existing record
                     for i, field in enumerate(FuneralPolicy._meta.get_fields()):
                         setattr(funeral_policy, field.name, row[i])
 
@@ -58,76 +53,75 @@ class FuneralPolicyList(APIView):
                     updated_records.append({"policy_number": policy_number, "status": "updated"})
 
                 except FuneralPolicy.DoesNotExist:
-                    # Create a new record
-
+                    
                     funeral_policy = FuneralPolicy(
-                        policy_search=row[1],
-                        ID_search=row[2],
-                        time_stamp=row[3],
-                        report_period_start=row[4],
-                        report_period_end=row[5],
-                        administrator=row[6],
-                        insurer_name=row[7],
-                        client_identifier=row[8],
-                        division_identifier=row[9],
-                        sub_scheme_name=row[10],
-                        policy_number=row[11],
-                        product_name=row[12],
-                        product_option=row[13],
-                        policy_commencement_date=row[14],
-                        policy_expiry_date=row[15],
-                        term_of_policy=row[16],
-                        policy_status=row[17],
-                        policy_status_date=row[18],
-                        new_policy_indicator=row[19],
-                        sales_channel=row[20],
-                        cancelled_by=row[21],
-                        death_indicator=row[22],
-                        premium_frequency=row[23],
-                        premium_type=row[24],
-                        death_original_sum_insured=row[25],
-                        death_cover=row[26],
-                        death_current_sum_insured=row[27],
-                        reinsurer_name=row[28],
-                        death_current_ri_sum_insured=row[29],
-                        death_ri_premium=row[30],
-                        death_ri_percent=row[31],
-                        total_premium_collected=row[32],
-                        total_premium_payable=row[33],
-                        total_premium_subsidy=row[34],
-                        total_reinsurance_premium=row[35],
-                        total_reinsurance_premium_payable=row[36],
-                        total_financial_reinsurance_cashflows=row[37],
-                        total_financial_reinsurance_payable=row[38],
-                        commission_frequency=row[39],
-                        commission=row[40],
-                        binder_fees=row[41],
-                        outsourcing_fees=row[42],
-                        marketing_fees=row[43],
-                        management_fees=row[44],
-                        claims_handling_fees=row[45],
-                        total_gross_claim_amount=row[46],
-                        gross_claim_paid=row[47],
-                        reinsurance_recoveries=row[48],
-                        principal_surname=row[49],
-                        principal_firstname=row[50],
-                        principal_initials=row[51],
-                        principal_id=row[52],
-                        principal_gender=row[53],
-                        principal_date_of_birth=row[54],
-                        principal_physical_address=row[55],
-                        principal_postal_code=row[56],
-                        principal_email=row[57],
-                        income_group=row[58],
-                        spouse_indicator=row[59],
-                        number_adult_dependants=row[60],
-                        number_child_dependants=row[61],
-                        number_extended_family=row[62],
-                        spouse_surname=row[63],
-                        spouse_firstname=row[64],
-                        spouse_initials=row[65],
-                        spouse_id=row[66],
-                        spouse_gender=row[67],
+                        policy_search=row[0],
+                        ID_search=row[1],
+                        time_stamp=row[2],
+                        report_period_start=row[3],
+                        report_period_end=row[4],
+                        administrator=row[5],
+                        insurer_name=row[6],
+                        client_identifier=row[7],
+                        division_identifier=row[8],
+                        sub_scheme_name=row[9],
+                        policy_number=row[10],
+                        product_name=row[11],
+                        product_option=row[12],
+                        policy_commencement_date=row[13],
+                        policy_expiry_date=row[14],
+                        term_of_policy=row[15],
+                        policy_status=row[16],
+                        policy_status_date=row[17],
+                        new_policy_indicator=row[18],
+                        sales_channel=row[19],
+                        cancelled_by=row[20],
+                        death_indicator=row[21],
+                        premium_frequency=row[22],
+                        premium_type=row[23],
+                        death_original_sum_insured=row[24],
+                        death_cover=row[25],
+                        death_current_sum_insured=row[26],
+                        reinsurer_name=row[27],
+                        death_current_ri_sum_insured=row[28],
+                        death_ri_premium=row[29],
+                        death_ri_percent=row[30],
+                        total_premium_collected=row[31],
+                        total_premium_payable=row[32],
+                        total_premium_subsidy=row[33],
+                        total_reinsurance_premium=row[34],
+                        total_reinsurance_premium_payable=row[35],
+                        total_financial_reinsurance_cashflows=row[36],
+                        total_financial_reinsurance_payable=row[37],
+                        commission_frequency=row[38],
+                        commission=row[39],
+                        binder_fees=row[40],
+                        outsourcing_fees=row[41],
+                        marketing_fees=row[42],
+                        management_fees=row[43],
+                        claims_handling_fees=row[44],
+                        total_gross_claim_amount=row[45],
+                        gross_claim_paid=row[46],
+                        reinsurance_recoveries=row[47],
+                        principal_surname=row[48],
+                        principal_firstname=row[49],
+                        principal_initials=row[50],
+                        principal_id=row[51],
+                        principal_gender=row[52],
+                        principal_date_of_birth=row[53],
+                        principal_physical_address=row[54],
+                        principal_postal_code=row[55],
+                        principal_email=row[56],
+                        income_group=row[57],
+                        spouse_indicator=row[58],
+                        number_adult_dependants=row[59],
+                        number_child_dependants=row[60],
+                        number_extended_family=row[61],
+                        spouse_surname=row[62],
+                        spouse_firstname=row[63],
+                        spouse_initials=row[64],
+                        spouse_id=row[65],
+                        spouse_gender=row[66],
                         spouse_date_of_birth=row[67],
                         spouse_cover_amount=row[68],
                         spouse_cover_commencement_date=row[69],
@@ -187,9 +181,12 @@ class FuneralPolicyList(APIView):
                 except IntegrityError as e:
                     # Record creation failed due to integrity error
                     failed_records.append({"policy_number": policy_number, "error": str(e)})
-
+        
+        
         except Exception as e:
             return Response({'error': f'Error processing CSV file: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        total_records = FuneralPolicy.objects.all().count()
 
         response_data = {
             'message': 'CSV file uploaded successfully',
@@ -202,121 +199,6 @@ class FuneralPolicyList(APIView):
         return Response(response_data, status=201)
 
 
-# class IndluLoanDataList(APIView):
-
-#     parser_classes = [MultiPartParser]
-
-#     def get(self, request, format=None):
-#         indlu_data_list = IndluLoanData.objects.all()
-#         serializer = IndluLoanDataSerializer(indlu_data_list, many=True)
-#         return Response(serializer.data)
-
-#     def post(self, request, format=None):
-
-#         if 'csv_file' not in request.FILES:
-#             return Response({'error': 'Please provide a CSV file'}, status=status.HTTP_400_BAD_REQUEST)
-        
-#         csv_file = request.FILES['csv_file']
-
-#         try:
-#             wb = openpyxl.load_workbook(csv_file)
-#             worksheet = wb['2023_11_30']
-
-#             for row in worksheet.iter_rows(values_only=True):
-#                 report_data = row[0]
-#                 client_ref = row[1]
-#                 loan_ref_Id = row[2]
-#                 status = row[3]
-#                 close_date = row[4]
-#                 NT = row[5]
-#                 payment_method = row[6]
-#                 merchant = row[7]
-#                 province = row[8]
-#                 disbursment_date = row[9]
-#                 disbursment_month =  row[10]
-#                 application_score = row[11]
-#                 risk_band = row[12]
-#                 debt_book = row[13]
-#                 agency = row[14]
-#                 special_circumstance = row[15]
-#                 sector = row[16]
-#                 job_description = row[17]
-#                 last_payment_date = row[18]
-#                 last_payment_month = row[19]
-#                 gender = row[20]
-#                 employer = row[21]
-#                 loan_amount = row[22]
-#                 int_rate = row[23]
-#                 loan_term = row[24]
-#                 remaining_term = row[25]
-#                 CD_move = row[26]
-#                 CD_current_month = row[27]
-#                 CD_Oct_2023 = row[28]
-#                 CD_Sep_2023 = row[29]
-#                 CD_Aug_2023 = row[30]
-#                 CD_Jul_2023 = row[31]
-#                 CD_Jun_2023 = row[32]
-#                 CD_May_2023 = row[33]
-#                 CD_Apr_2023 = row[34]
-#                 CD_Mar_2023 = row[35]
-#                 CD_Feb_2023 = row[36]
-#                 CD_Jan_2023 = row[37]
-#                 CD_Dec_2023 = row[38]
-#                 CD_Nov_2023 = row[39]
-#                 account_balance_active_charge_off = row[40]
-
-#                 indlu_data_instance = IndluLoanData(
-                    
-#                     report_data = report_data,
-#                     client_ref = client_ref,
-#                     loan_ref_Id = loan_ref_Id,
-#                     status = status,
-#                     close_date = close_date,
-#                     NT = NT,
-#                     payment_method = payment_method,
-#                     merchant = merchant,
-#                     province = province,
-#                     disbursment_date = disbursment_date,
-#                     disbursment_month = disbursment_month,
-#                     application_score = application_score,
-#                     risk_band = risk_band,
-#                     debt_book = debt_book,
-#                     agency = agency,
-#                     special_circumstance = special_circumstance,
-#                     sector = sector,
-#                     job_description = job_description,
-#                     last_payment_date = last_payment_date,
-#                     last_payment_month = last_payment_month,
-#                     gender = gender,
-#                     employer = employer,
-#                     loan_amount = loan_amount,
-#                     int_rate = int_rate,
-#                     loan_term = loan_term,
-#                     remaining_term = remaining_term,
-#                     CD_move = CD_move,
-#                     CD_current_month = CD_current_month,
-#                     CD_Oct_2023 = CD_Oct_2023,
-#                     CD_Sep_2023 = CD_Sep_2023,
-#                     CD_Aug_2023 = CD_Aug_2023,
-#                     CD_Jul_2023 = CD_Jul_2023,
-#                     CD_Jun_2023 = CD_Jun_2023,
-#                     CD_May_2023 = CD_May_2023,
-#                     CD_Apr_2023 = CD_Apr_2023,
-#                     CD_Mar_2023 = CD_Mar_2023,
-#                     CD_Feb_2023 = CD_Feb_2023,
-#                     CD_Jan_2023 = CD_Jan_2023,
-#                     CD_Dec_2023 = CD_Dec_2023,
-#                     CD_Nov_2023 = CD_Nov_2023,
-#                     account_balance_active_charge_off = account_balance_active_charge_off
-#                 )
-
-#                 indlu_data_instance.save()
-            
-#             return Response({'message': 'Indlu Loan data CSV file uploaded successfully'}, status=201)               
-
-#         except Exception as e:
-#             return Response({'error': f'Error processing CSV file: {e}'}, status=HttpResponseBadRequest.status_code)
-   
 class IndluLoanDataList(APIView):
 
     parser_classes = [MultiPartParser]
@@ -338,9 +220,9 @@ class IndluLoanDataList(APIView):
             worksheet = wb['2023_11_30']
 
             total_records = 0
-            new_records = 0
-            updated_records = 0
-            failed_records = 0
+            new_records = []
+            updated_records = []
+            failed_records = []
 
             for row in worksheet.iter_rows(values_only=True):
                 report_data = row[0]
@@ -433,9 +315,9 @@ class IndluLoanDataList(APIView):
                     new_records += 1
 
                 except IntegrityError:
-                    failed_records += 1
+                    failed_records.append(indlu_data_instance)
 
-                total_records += 1
+            total_records = IndluLoanData.objects.all().count()
 
             return Response({
                 'message': 'Indlu Loan data CSV file uploaded successfully',
