@@ -38,128 +38,139 @@ class FuneralPolicyList(APIView):
             new_records = []
             updated_records = []
             failed_records = []
+            repeating_record_instances = []
 
             for row in worksheet.iter_rows(values_only=True):
 
-                policy_search=row[0],
-                ID_search=row[1],
-                time_stamp=row[2],
-                report_period_start=row[3],
-                report_period_end=row[4],
-                administrator=row[5],
-                insurer_name=row[6],
-                client_identifier=row[7],
-                division_identifier=row[8],
-                sub_scheme_name=row[9],
-                policy_number=row[10],
-                product_name=row[11],
-                product_option=row[12],
-                policy_commencement_date=row[13],
-                policy_expiry_date=row[14],
-                term_of_policy=row[15],
-                policy_status=row[16],
-                policy_status_date=row[17],
-                new_policy_indicator=row[18],
-                sales_channel=row[19],
-                cancelled_by=row[20],
-                death_indicator=row[21],
-                premium_frequency=row[22],
-                premium_type=row[23],
-                death_original_sum_insured=row[24],
-                death_cover=row[25],
-                death_current_sum_insured=row[26],
-                reinsurer_name=row[27],
-                death_current_ri_sum_insured=row[28],
-                death_ri_premium=row[29],
-                death_ri_percent=row[30],
-                total_premium_collected=row[31],
-                total_premium_payable=row[32],
-                total_premium_subsidy=row[33],
-                total_reinsurance_premium=row[34],
-                total_reinsurance_premium_payable=row[35],
-                total_financial_reinsurance_cashflows=row[36],
-                total_financial_reinsurance_payable=row[37],
-                commission_frequency=row[38],
-                commission=row[39],
-                binder_fees=row[40],
-                outsourcing_fees=row[41],
-                marketing_fees=row[42],
-                management_fees=row[43],
-                claims_handling_fees=row[44],
-                total_gross_claim_amount=row[45],
-                gross_claim_paid=row[46],
-                reinsurance_recoveries=row[47],
-                principal_surname=row[48],
-                principal_firstname=row[49],
-                principal_initials=row[50],
-                principal_id=row[51],
-                principal_gender=row[52],
-                principal_date_of_birth=row[53],
-                principal_physical_address=row[54],
-                principal_postal_code=row[55],
-                principal_email=row[56],
-                income_group=row[57],
-                spouse_indicator=row[58],
-                number_adult_dependants=row[59],
-                number_child_dependants=row[60],
-                number_extended_family=row[61],
-                spouse_surname=row[62],
-                spouse_firstname=row[63],
-                spouse_initials=row[64],
-                spouse_id=row[65],
-                spouse_gender=row[66],
-                spouse_date_of_birth=row[67],
-                spouse_cover_amount=row[68],
-                spouse_cover_commencement_date=row[69],
+                policy_number = row[10]
+                existing_record = FuneralPolicy.objects.filter(policy_number=policy_number).first()
 
-                dependent_1_gender=row[70],
-                dependent_1_date_of_birth=row[71],
-                dependent_1_type=row[72],
-                dependent_1_cover_amount=row[73],
-                dependent_1_cover_commencement_date=row[74],
+                if existing_record:
+                    for field, value in zip(FuneralPolicy._meta.fields, row):
+                        setattr(existing_record, field.name, value)
+                    existing_record.save()
+                    updated_records.append(FuneralPolicySerializer(existing_record).data)
+                
+                else:
+                    policy_search=row[0],
+                    ID_search=row[1],
+                    time_stamp=row[2],
+                    report_period_start=row[3],
+                    report_period_end=row[4],
+                    administrator=row[5],
+                    insurer_name=row[6],
+                    client_identifier=row[7],
+                    division_identifier=row[8],
+                    sub_scheme_name=row[9],
+                    policy_number=row[10],
+                    product_name=row[11],
+                    product_option=row[12],
+                    policy_commencement_date=row[13],
+                    policy_expiry_date=row[14],
+                    term_of_policy=row[15],
+                    policy_status=row[16],
+                    policy_status_date=row[17],
+                    new_policy_indicator=row[18],
+                    sales_channel=row[19],
+                    cancelled_by=row[20],
+                    death_indicator=row[21],
+                    premium_frequency=row[22],
+                    premium_type=row[23],
+                    death_original_sum_insured=row[24],
+                    death_cover=row[25],
+                    death_current_sum_insured=row[26],
+                    reinsurer_name=row[27],
+                    death_current_ri_sum_insured=row[28],
+                    death_ri_premium=row[29],
+                    death_ri_percent=row[30],
+                    total_premium_collected=row[31],
+                    total_premium_payable=row[32],
+                    total_premium_subsidy=row[33],
+                    total_reinsurance_premium=row[34],
+                    total_reinsurance_premium_payable=row[35],
+                    total_financial_reinsurance_cashflows=row[36],
+                    total_financial_reinsurance_payable=row[37],
+                    commission_frequency=row[38],
+                    commission=row[39],
+                    binder_fees=row[40],
+                    outsourcing_fees=row[41],
+                    marketing_fees=row[42],
+                    management_fees=row[43],
+                    claims_handling_fees=row[44],
+                    total_gross_claim_amount=row[45],
+                    gross_claim_paid=row[46],
+                    reinsurance_recoveries=row[47],
+                    principal_surname=row[48],
+                    principal_firstname=row[49],
+                    principal_initials=row[50],
+                    principal_id=row[51],
+                    principal_gender=row[52],
+                    principal_date_of_birth=row[53],
+                    principal_physical_address=row[54],
+                    principal_postal_code=row[55],
+                    principal_email=row[56],
+                    income_group=row[57],
+                    spouse_indicator=row[58],
+                    number_adult_dependants=row[59],
+                    number_child_dependants=row[60],
+                    number_extended_family=row[61],
+                    spouse_surname=row[62],
+                    spouse_firstname=row[63],
+                    spouse_initials=row[64],
+                    spouse_id=row[65],
+                    spouse_gender=row[66],
+                    spouse_date_of_birth=row[67],
+                    spouse_cover_amount=row[68],
+                    spouse_cover_commencement_date=row[69],
 
-                dependent_2_gender=row[75],
-                dependent_2_date_of_birth=row[76],
-                dependent_2_type=row[77],
-                dependent_2_cover_amount=row[78],
-                dependent_2_cover_commencement_date=row[79],
+                    dependent_1_gender=row[70],
+                    dependent_1_date_of_birth=row[71],
+                    dependent_1_type=row[72],
+                    dependent_1_cover_amount=row[73],
+                    dependent_1_cover_commencement_date=row[74],
 
-                dependent_3_gender=row[80],
-                dependent_3_date_of_birth=row[81],
-                dependent_3_type=row[82],
-                dependent_3_cover_amount=row[83],
-                dependent_3_cover_commencement_date=row[84],
+                    dependent_2_gender=row[75],
+                    dependent_2_date_of_birth=row[76],
+                    dependent_2_type=row[77],
+                    dependent_2_cover_amount=row[78],
+                    dependent_2_cover_commencement_date=row[79],
 
-                dependent_4_gender=row[85],
-                dependent_4_date_of_birth=row[86],
-                dependent_4_type=row[87],
-                dependent_4_cover_amount=row[88],
-                dependent_4_cover_commencement_date=row[89],
+                    dependent_3_gender=row[80],
+                    dependent_3_date_of_birth=row[81],
+                    dependent_3_type=row[82],
+                    dependent_3_cover_amount=row[83],
+                    dependent_3_cover_commencement_date=row[84],
 
-                dependent_5_gender=row[90],
-                dependent_5_date_of_birth=row[91],
-                dependent_5_type=row[92],
-                dependent_5_cover_amount=row[93],
-                dependent_5_cover_commencement_date=row[94],
+                    dependent_4_gender=row[85],
+                    dependent_4_date_of_birth=row[86],
+                    dependent_4_type=row[87],
+                    dependent_4_cover_amount=row[88],
+                    dependent_4_cover_commencement_date=row[89],
 
-                dependent_6_gender=row[95],
-                dependent_6_date_of_birth=row[96],
-                dependent_6_type=row[97],
-                dependent_6_cover_amount=row[98],
-                dependent_6_cover_commencement_date=row[99],
+                    dependent_5_gender=row[90],
+                    dependent_5_date_of_birth=row[91],
+                    dependent_5_type=row[92],
+                    dependent_5_cover_amount=row[93],
+                    dependent_5_cover_commencement_date=row[94],
 
-                dependent_7_gender=row[100],
-                dependent_7_date_of_birth=row[101],
-                dependent_7_type=row[102],
-                dependent_7_cover_amount=row[103],
-                dependent_7_cover_commencement_date=row[104],
+                    dependent_6_gender=row[95],
+                    dependent_6_date_of_birth=row[96],
+                    dependent_6_type=row[97],
+                    dependent_6_cover_amount=row[98],
+                    dependent_6_cover_commencement_date=row[99],
 
-                dependent_8_gender=row[105],
-                dependent_8_date_of_birth=row[106],
-                dependent_8_type=row[107],
-                dependent_8_cover_amount=row[108],
-                dependent_8_cover_commencement_date=row[109]
-            
+                    dependent_7_gender=row[100],
+                    dependent_7_date_of_birth=row[101],
+                    dependent_7_type=row[102],
+                    dependent_7_cover_amount=row[103],
+                    dependent_7_cover_commencement_date=row[104],
+
+                    dependent_8_gender=row[105],
+                    dependent_8_date_of_birth=row[106],
+                    dependent_8_type=row[107],
+                    dependent_8_cover_amount=row[108],
+                    dependent_8_cover_commencement_date=row[109]
+                
                 try:
                     funeral_policy = FuneralPolicy(
                         policy_search = policy_search,
@@ -334,8 +345,10 @@ class IndluLoanDataList(APIView):
                 existing_record = IndluLoanData.objects.filter(loan_ref_Id=loan_ref_Id).first()
 
                 if existing_record:
-                    repeating_record_instances.append(IndluLoanDataSerializer(existing_record).data)
-
+                    for field, value in zip(IndluLoanData._meta.fields, row):
+                        setattr(existing_record, field.name, value)
+                    existing_record.save()
+                    updated_records.append(IndluLoanDataSerializer(existing_record).data)
                 else:
                     report_data = row[0]
                     client_ref = row[1]
@@ -476,7 +489,10 @@ class SmartAdvanceCreditList(APIView):
                 existing_record = SmartAdvanceCredit.objects.filter(refId=refId).first()
 
                 if existing_record:
-                    repeating_record_instances.append(SmartAdvanceCreditSerializer(existing_record).data)
+                    for field, value in zip(SmartAdvanceCredit._meta.fields, row):
+                        setattr(existing_record, field.name, value)
+                    existing_record.save()
+                    updated_records.append(SmartAdvanceCreditSerializer(existing_record).data)
                 
                 else:
                     refId = row[0]
